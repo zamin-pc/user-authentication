@@ -19,7 +19,7 @@ style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/
             <h2 class="text-uppercase text-center mb-5">Create an account</h2>
 
 
-            <form method="POST" action="{{ route('api.register') }}">
+            <form method="POST" action="{{ route('user.create') }}">
             @error('name')
                    <div class="alert alert-danger">{{ $message }}</div>
                 @enderror

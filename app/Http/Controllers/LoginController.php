@@ -39,7 +39,7 @@ class LoginController extends Controller
                     $data = $response->json();
                     return response()->json([
                         'message' => 'user logged in successfully..!!'
-                    ], 500);
+                    ], 200);
                 } 
 
                 return response()->json(['error' => 'Please fill correct credentials..!!'], 401);
