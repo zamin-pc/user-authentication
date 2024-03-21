@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="POST" action="{{ route('api.login') }}">
+    <form method="POST" action="{{ route('user.login') }}">
     @csrf
         <!-- Email input -->
         <div class="form-outline mb-4">

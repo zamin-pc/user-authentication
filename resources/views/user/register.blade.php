@@ -19,7 +19,7 @@ style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/
             <h2 class="text-uppercase text-center mb-5">Create an account</h2>
 
 
-            <form method="POST" action="{{ route('user.create') }}">
+            <form method="POST" action="{{ route('user.register') }}">
             @error('name')
                    <div class="alert alert-danger">{{ $message }}</div>
                 @enderror
@@ -61,7 +61,7 @@ style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/
                   class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
               </div>
 
-              <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="{{ route('user.login-form') }}"
+              <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="{{ route('login.form') }}"
                   class="fw-bold text-body"><u>Login here</u></a></p>
 
             <!-- </form> -->

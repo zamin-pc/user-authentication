@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WebController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,12 +20,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/register', [UserController::class, 'registerForm'])->name('register.form');
-Route::post('/user-create', [UserController::class, 'create'])->name('user.create');
-Route::get('/login', [LoginController::class, 'loginForm'])->name('user.login-form');
+Route::get('/register', [WebController::class, 'registerForm'])->name('register.form');
+Route::post('/register', [WebController::class, 'register'])->name('user.register');
+Route::get('/login', [WebController::class, 'loginForm'])->name('login.form');
+Route::post('/login', [WebController::class, 'login'])->name('user.login');
 
+Route::get('/dashboard', [WebController::class, 'dashboard'])->name('user.dashboard');
 
-// Route::group(['middleware'=>'admin'], function(){
-//     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('user.dashboard');
-// });
 

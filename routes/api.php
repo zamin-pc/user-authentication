@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
@@ -21,13 +22,13 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-Route::group(['middleware'=>'jwt.auth'], function(){
-    Route::post('/logout', [LoginController::class, 'logout'])->name('api.logout');
-    Route::get('/user', [UserController::class, 'userDetails'])->name('user.details');
-});
+// Route::group(['middleware'=>'jwt.verify'], function(){
+    // Route::post('/logout', [ApiController::class, 'logout'])->name('api.logout');
+    Route::get('/user', [ApiController::class, 'userDetails'])->name('user.details');
+// });
 
-Route::post('/register', [AuthController::class, 'register'])->name('api.register');
-Route::post('/login', [LoginController::class, 'login'])->name('api.login');
+// Route::post('/register', [ApiController::class, 'register'])->name('api.register');
+Route::post('/login', [ApiController::class, 'login'])->name('api.login');
 
 // Route::middleware('jwt.auth')->get('/user', function(Request $request) {
 //     return auth()->user();
