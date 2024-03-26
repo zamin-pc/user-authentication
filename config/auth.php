@@ -45,6 +45,11 @@ return [
             'driver' => 'passport',
             'provider' => 'users',
         ],
+
+        'shared' => [
+            'driver' => 'session',
+            'provider' => 'second_users',
+        ],
     ],
 
     /*
@@ -68,6 +73,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+
+        'second_users' => [ // Define a new provider for the second database
+            'driver' => 'eloquent',
+            'model' => App\Models\SharedUser::class,
         ],
 
         // 'users' => [

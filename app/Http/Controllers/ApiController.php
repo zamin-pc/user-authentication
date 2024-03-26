@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SharedUser;
 use App\Models\User;
+use App\Rules\UniqueEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 
 class ApiController extends Controller
@@ -30,11 +33,11 @@ class ApiController extends Controller
         }
 
         try {
-            $user = User::Where('email', $request->email)->first();
+            $user = SharedUser::Where('email', $request->email)->first();
             if (!empty($user->email)) {
-                if (Auth::attempt($request->only('email', 'password'))) {
+                if (Auth::guard('shared')->attempt($request->only('email', 'password'))) {
 
-                    $authUser = Auth::user();
+                    $authUser = Auth::guard('shared')->user();
                     $accessToken = $authUser->createToken('MyAppToken')->accessToken;
 
                     $payload = [
@@ -81,7 +84,8 @@ class ApiController extends Controller
 
     public function userDetails(Request $request)
     {
-        $users = User::all();
+        // $authUser = Auth::guard('shared')->user();
+        $users = SharedUser::all();
         if ($users->isNotEmpty()) {
             return response()->json([
                 'message' => 'success',
@@ -98,7 +102,8 @@ class ApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email|unique:users',
+            // 'email' => 'required|email|unique:users|unique:shared_users,email',
+            'email' => ['required', 'email', new UniqueEmail],
             'phone' => 'required|digits:10',
             'password' => 'required|min:8',
         ]);
@@ -107,16 +112,41 @@ class ApiController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
+        try {
+            DB::beginTransaction();
+
+            $data = array(
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+            );
+
+            $user = User::create($data);
+            $sharedUser = SharedUser::create($data);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'User registered successfully',
+                'user' => $sharedUser
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function profileUpdate(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'phone' => 'required|digits:10',
+            'password' => 'required|min:8',
         ]);
 
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user
-        ], 201);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
     }
 }

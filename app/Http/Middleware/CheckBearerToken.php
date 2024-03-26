@@ -19,7 +19,6 @@ class CheckBearerToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // dd($request->header('X-Internal-Request'));
         $token = $request->bearerToken();
 
         if (!$token) {
@@ -27,12 +26,10 @@ class CheckBearerToken
         }
         try {
             $decoded = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
-            $decodedData = (array) $decoded;
-            // dd($decodedData);
             $user = new User();
-            $user->fill($decodedData);
+            $user->fill((array) $decoded);
 
-            $authenticatedUser = Auth::guard('api')->setUser($user);
+            $authenticatedUser = Auth::guard('shared')->setUser($user);
 
             if ($authenticatedUser) {
                 return $next($request);

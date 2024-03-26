@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware'=>'checkBearerToken'], function(){
     Route::get('/user', [ApiController::class, 'userDetails'])->name('user.details');
+    Route::post('/profile-update', [ApiController::class, 'profileUpdate'])->name('profile.update');
 });
 
 Route::post('/register', [ApiController::class, 'register'])->name('api.register');
