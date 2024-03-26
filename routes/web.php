@@ -24,6 +24,7 @@ Route::get('/register', [WebController::class, 'registerForm'])->name('register.
 Route::post('/register', [WebController::class, 'register'])->name('user.register');
 Route::get('/login', [WebController::class, 'loginForm'])->name('login.form');
 Route::post('/login', [WebController::class, 'login'])->name('user.login');
+Route::get('/logout', [WebController::class, 'logout'])->name('user.logout');
 
 Route::get('/dashboard', [WebController::class, 'dashboard'])->name('user.dashboard');
 

@@ -13,7 +13,8 @@
                     <div class="card-header">Dashboard</div>
 
                     <div class="card-body">
-                        You are logged in!
+                        <p>You are logged in!</p>
+                        <a href="{{ route('user.logout') }}">Logout</a>
                     </div>
                 </div>
             </div>

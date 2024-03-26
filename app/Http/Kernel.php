@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\admin\AdminMiddleware::class,
-        'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class
+        'jwt.verify' => \App\Http\Middleware\JwtMiddleware::class,
+        'checkBearerToken' => \App\Http\Middleware\CheckBearerToken::class
     ];
 }

@@ -6,9 +6,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+// use JWTAuth;
+// use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Http;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Auth;
+
 
 class ApiController extends Controller
 {
@@ -25,83 +31,74 @@ class ApiController extends Controller
 
         try {
             $user = User::Where('email', $request->email)->first();
-            if ($user->email) {
-                // if (JWTAuth::attempt($request->only('email', 'password'))) {
+            if (!empty($user->email)) {
+                if (Auth::attempt($request->only('email', 'password'))) {
 
-                //     $user = JWTAuth::user();
-                //     $additionalPayload = [
-                //         'id' => $user->id,
-                //         'name' => $user->name,
-                //         'email' => $user->email,
-                //         'phone' => $user->phone,
-                //     ];
+                    $authUser = Auth::user();
+                    $accessToken = $authUser->createToken('MyAppToken')->accessToken;
 
-                //     $tokenWithPayload = JWTAuth::claims($additionalPayload)->attempt($request->only('email', 'password'));
+                    $payload = [
+                        'id' => $authUser->id,
+                        'name' => $authUser->name,
+                        'email' => $authUser->email,
+                        'phone' => $authUser->phone,
+                    ];
 
-                //     return response()->json([
-                //         'message' => 'user logged in successfully..!!',
-                //         'token' => $tokenWithPayload
-                //     ]);
-                // } else {
-                //     return response()->json(['error' => 'Please fill correct password..!!'], 401);
-                // }
-                return response()->json([
-                    // 'message' => 'user logged in successfully..!!',
-                    'user' => $user
-                ], 200);
+                    $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256');
+
+                    return response()->json([
+                        'message' => 'User logged in successfully..!!',
+                        'token' => $token,
+                        'accessToken' => $accessToken
+                    ]);
+                } else {
+                    return response()->json(['error' => 'Wrong password..!!'], 401);
+                }
             } else {
+                $appUrl = env('EXTERNAL_APP_URL');
+                $endpoint = '/api/v1/user/login';
 
-                // $appUrl = env('EXTERNAL_APP_URL');
-                // $email = env('USER_EMAIL');
-                // $password = env('USER_PASSWORD');
-                // $email = $request->email;
-                // $password = $request->password;
+                $response = Http::timeout(10)->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($appUrl . $endpoint, [
+                    'email' => $request->email,
+                    'password' => $request->password,
+                ]);
 
-                // $response = Http::withHeaders([
-                //     'Content-Type' => 'application/json',
-                // ])->post($appUrl . '/api/v1/user/login', [
-                //     'email' => $email,
-                //     'password' => $password
-                // ]);
+                if ($response->successful()) {
 
-                // if ($response->successful()) {
-                //     $json_decode = json_decode($response, true);
-
-                //     return response()->json([
-                //         'message' => 'user logged in successfully..!!',
-                //         'token' => $json_decode['userData']
-                //     ], 200);
-                // }
-
-                return response()->json(['error' => 'Email not found..!!'], 401);
+                    $data = $response->json();
+                    return response()->json([
+                        'data' => $data,
+                    ]);
+                } else {
+                    $statusCode = $response->json();
+                    return response()->json(['error' => 'Email not found..!!'], 401);
+                }
             }
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function logout(Request $request)
+    public function userDetails(Request $request)
     {
-        $token = $request->bearerToken();
-        if (!$token) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        $users = User::all();
+        if ($users->isNotEmpty()) {
+            return response()->json([
+                'message' => 'success',
+                'user' => $users
+            ]);
         }
-        JWTAuth::invalidate($token);
         return response()->json([
-            'message' => 'User Log out successfully...!!'
+            'message' => 'No users found..!!'
         ], 200);
     }
 
-    public function userDetails()
+    public function register(Request $request)
     {
-        return response()->json([
-            'user' => JWTAuth::user()
-        ]);
-    }
 
-    public function register(Request $request) {
-
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'phone' => 'required|digits:10',

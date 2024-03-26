@@ -22,17 +22,11 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
-// Route::group(['middleware'=>'jwt.verify'], function(){
-    // Route::post('/logout', [ApiController::class, 'logout'])->name('api.logout');
+Route::group(['middleware'=>'checkBearerToken'], function(){
     Route::get('/user', [ApiController::class, 'userDetails'])->name('user.details');
-// });
+});
 
-// Route::post('/register', [ApiController::class, 'register'])->name('api.register');
 Route::post('/login', [ApiController::class, 'login'])->name('api.login');
-
-// Route::middleware('jwt.auth')->get('/user', function(Request $request) {
-//     return auth()->user();
-// });
 
 
 
