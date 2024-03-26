@@ -26,6 +26,7 @@ Route::group(['middleware'=>'checkBearerToken'], function(){
     Route::get('/user', [ApiController::class, 'userDetails'])->name('user.details');
 });
 
+Route::post('/register', [ApiController::class, 'register'])->name('api.register');
 Route::post('/login', [ApiController::class, 'login'])->name('api.login');
 
 

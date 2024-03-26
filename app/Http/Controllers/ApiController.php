@@ -66,14 +66,12 @@ class ApiController extends Controller
                 ]);
 
                 if ($response->successful()) {
-
                     $data = $response->json();
                     return response()->json([
                         'data' => $data,
                     ]);
                 } else {
-                    $statusCode = $response->json();
-                    return response()->json(['error' => 'Email not found..!!'], 401);
+                    return response()->json(['error' => 'User not found..!!'], 401);
                 }
             }
         } catch (\Exception $e) {
